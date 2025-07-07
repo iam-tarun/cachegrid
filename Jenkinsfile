@@ -71,9 +71,7 @@ pipeline {
             }
         }
         stage('Checkout') {
-            agent {
-                        docker any
-            }
+            agent any
             steps {
                 checkout([
                     $class: 'GitSCM',
