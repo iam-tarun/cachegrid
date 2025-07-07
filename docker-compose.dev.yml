@@ -1,4 +1,4 @@
-version: '1.0.0'
+version: '3.8'
 
 x-key-file: &key-file ./keys-dev.json
 
@@ -20,7 +20,7 @@ services:
     depends_on:
       redis-cluster:
         condition: service_healthy
-    volume:
+    volumes:
       - *key-file:/opt/keys.json:ro
     entrypoint: ["bash", "-c", "
         echo 'seeding API keys';

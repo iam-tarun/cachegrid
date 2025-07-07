@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'docker-agent'
-    }
+    agent none
 
     environment {
         APP_NAME = 'CacheGrid'
@@ -51,6 +49,7 @@ pipeline {
 
     stages {
         stage('Initialize') {
+            agent any
             steps {
                 script {
 
@@ -70,6 +69,9 @@ pipeline {
             }
         }
         stage('Checkout') {
+            agent {
+                        docker any
+            }
             steps {
                 checkout([
                     $class: 'GitSCM',
@@ -94,6 +96,12 @@ pipeline {
             }
         }
         stage('Build') {
+            agent {
+                docker {
+                    image 'maven:3.8.4-openjdk-17'
+                    args '-v $HOME/.m2:/root/.m2'
+                }
+            }
             environment {
                 NODE_ENV = 'dev'
                 STAGE_NAME = 'build'
@@ -107,13 +115,23 @@ pipeline {
                     echo "Files in directory:"
                     ls -la
                     echo "Building application"
-                    docker build .
-                    docker-compose -d docker-compose.dev.yml
+                    mvn clean package -DskipTests
                     echo "Build completed successfully"
                 '''
+                stash includes: 'target/*.jar', name: 'spring-boot-jar'
 
                 sh "echo 'Building for environment: ${params.ENVIRONMENT}'"
                 sh "echo 'Full image name will be: ${FULL_IMAGE_NAME}'"
+            }
+        }
+        stage('Build Docker Image') {
+            agent any
+            steps {
+                unstash 'spring-boot-jar'
+                script {
+                    def image = docker.build("cachegrid-dockerized:latest")
+                }
+                sh "docker-compose up -d --build"
             }
         }
     }
