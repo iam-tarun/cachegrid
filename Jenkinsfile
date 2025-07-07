@@ -4,11 +4,6 @@ pipeline {
     environment {
         APP_NAME = 'CacheGrid'
         BUILD_ENV = "dev"
-
-        BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d_%H%M%S', returnStdout: true).trim()
-
-        IMAGE_TAG = "${BUILD_NUMBER}-${BUILD_TIMESTAMP}"
-        FULL_IMAGE_NAME = "${APP_NAME}:${IMAGE_TAG}"
     }
 
     options {
@@ -50,7 +45,14 @@ pipeline {
     stages {
         stage('Initialize') {
             agent any
+            environment {
+                BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d_%H%M%S', returnStdout: true).trim()
+
+                IMAGE_TAG = "${BUILD_NUMBER}-${BUILD_TIMESTAMP}"
+                FULL_IMAGE_NAME = "${APP_NAME}:${IMAGE_TAG}"
+            }
             steps {
+
                 script {
 
                     def currentDate = new Date().format('yyyy-MM-dd')
