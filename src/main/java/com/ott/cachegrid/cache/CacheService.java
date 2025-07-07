@@ -1,5 +1,8 @@
 package com.ott.cachegrid.cache;
 
+import com.ott.cachegrid.common.CacheTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -8,8 +11,8 @@ public class CacheService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public CacheService(RedisTemplate<String, String> template){
-        this.redisTemplate = template;
+    public CacheService(CacheTemplate template, RedisConnectionFactory redisConnectionFactory){
+        this.redisTemplate = template.redisTemplate(redisConnectionFactory);
     }
 
     public void set(String key, String value) {

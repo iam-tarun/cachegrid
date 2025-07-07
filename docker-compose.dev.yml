@@ -1,0 +1,43 @@
+version: '1.0.0'
+
+x-key-file: &key-file ./keys-dev.json
+
+services:
+  redis-cluster:
+    image: redis:latest
+    environment:
+      - REDIS_TLS_ENABLED=no
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  seeder:
+    image: redis:latest
+    depends_on:
+      redis-cluster:
+        condition: service_healthy
+    volume:
+      - *key-file:/opt/keys.json:ro
+    entrypoint: ["bash", "-c", "
+        echo 'seeding API keys';
+        cat /opt/keys.json | \
+          jq -r '.[] | \"SET \\(.projID) \\(.)\"' > /tmp/commands.redis &&
+        cat /tmp/commands.redis | redis-cli -h redis-cluster -p 6379 --pipe
+      "]
+
+  cachegrid:
+    image: cachegrid-dockerized
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - REDIS_HOST=redis-cluster
+      - REDIS_PORT=6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      - seeder
+
+  jenkins:

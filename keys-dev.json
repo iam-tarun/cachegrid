@@ -1,0 +1,14 @@
+[
+  {
+    "projID": "project-a",
+    "apiKey": "abcd1234",
+    "issuedAt": "2025-07-06T13:00:00Z",
+    "expiresAt": null
+  },
+  {
+    "projID": "project-b",
+    "apiKey": "efgh5678",
+    "issuedAt": "2025-07-06T13:00:00Z",
+    "expiresAt": "2025-07-31T00:00:00Z"
+  }
+]
