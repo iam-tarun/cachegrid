@@ -1,0 +1,10 @@
+[
+  {
+    "projID": "project-a",
+    "apiKey": "abcd1234"
+  },
+  {
+    "projID": "project-b",
+    "apiKey": "efgh5678"
+  }
+]
